@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitor Lisensi Zahir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F5F7F3;
+    --surface: #FFFFFF;
+    --line: #DDE3D8;
+    --ink: #1E2A22;
+    --ink-soft: #5B6B60;
+    --ok: #2E7D53;
+    --ok-bg: #E7F3EB;
+    --warn: #A5680E;
+    --warn-bg: #FBEED9;
+    --danger: #A83A34;
+    --danger-bg: #F7E4E1;
+    --accent: #2E5D46;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:32px 24px 64px;
+  }
+  header.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:24px;
+    flex-wrap:wrap;
+    margin-bottom:28px;
+  }
+  .title-block h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:26px;
+    margin:0 0 4px;
+    letter-spacing:-0.01em;
+  }
+  .title-block p{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:14px;
+  }
+  .stats{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .stat{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:10px 16px;
+    min-width:96px;
+  }
+  .stat .n{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:20px;
+    font-weight:600;
+    line-height:1;
+  }
+  .stat .l{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-top:4px;
+  }
+  .stat.ok .n{color:var(--ok);}
+  .stat.warn .n{color:var(--warn);}
+  .stat.danger .n{color:var(--danger);}
+
+  .toolbar{
+    display:flex;
+    gap:12px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .search{
+    flex:1;
+    min-width:220px;
+    position:relative;
+  }
+  .search input{
+    width:100%;
+    padding:10px 14px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    font-size:14px;
+    font-family:inherit;
+    background:var(--surface);
+    color:var(--ink);
+  }
+  .search input:focus{outline:2px solid var(--accent); outline-offset:1px;}
+  button{
+    font-family:'IBM Plex Sans', sans-serif;
+    cursor:pointer;
+  }
+  .btn-primary{
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    padding:10px 18px;
+    font-size:14px;
+    font-weight:500;
+    white-space:nowrap;
+  }
+  .btn-primary:hover{background:#254c39;}
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  thead th{
+    text-align:left;
+    font-size:12px;
+    font-weight:600;
+    color:var(--ink-soft);
+    padding:12px 14px;
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+    user-select:none;
+    white-space:nowrap;
+  }
+  thead th:hover{color:var(--ink);}
+  tbody tr{border-bottom:1px solid var(--line);}
+  tbody tr:last-child{border-bottom:none;}
+  tbody td{
+    padding:13px 14px;
+    font-size:14px;
+    vertical-align:middle;
+  }
+  td.mono, .mono{font-family:'IBM Plex Mono', monospace; font-size:13.5px;}
+  td.cust{font-weight:500;}
+  td.note{color:var(--ink-soft); font-size:13px;}
+  .status-cell{display:flex; align-items:center; gap:8px;}
+  .dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
+  .dot.ok{background:var(--ok);}
+  .dot.warn{background:var(--warn);}
+  .dot.danger{background:var(--danger);}
+  .status-text{font-size:13px; font-weight:500;}
+  .status-text.ok{color:var(--ok);}
+  .status-text.warn{color:var(--warn);}
+  .status-text.danger{color:var(--danger);}
+  tr.row-danger td:first-child{border-left:3px solid var(--danger);}
+  tr.row-warn td:first-child{border-left:3px solid var(--warn);}
+  tr.row-ok td:first-child{border-left:3px solid var(--ok);}
+
+  .actions{display:flex; gap:6px;}
+  .icon-btn{
+    border:1px solid var(--line);
+    background:var(--surface);
+    border-radius:6px;
+    padding:6px 10px;
+    font-size:12.5px;
+    color:var(--ink);
+  }
+  .icon-btn:hover{border-color:var(--accent); color:var(--accent);}
+  .icon-btn.del:hover{border-color:var(--danger); color:var(--danger);}
+
+  .empty{
+    text-align:center;
+    padding:48px 20px;
+    color:var(--ink-soft);
+    font-size:14px;
+  }
+
+  /* Slide-over panel */
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(20,28,22,0.35);
+    opacity:0; pointer-events:none;
+    transition:opacity .2s ease;
+    z-index:10;
+  }
+  .overlay.show{opacity:1; pointer-events:auto;}
+  .panel{
+    position:fixed;
+    top:0; right:0; bottom:0;
+    width:min(420px, 100vw);
+    background:var(--surface);
+    box-shadow:-8px 0 24px rgba(0,0,0,0.08);
+    transform:translateX(100%);
+    transition:transform .25s ease;
+    z-index:11;
+    display:flex;
+    flex-direction:column;
+  }
+  .panel.show{transform:translateX(0);}
+  .panel-head{
+    padding:22px 24px 16px;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .panel-head h2{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:18px;
+    margin:0;
+    font-weight:600;
+  }
+  .panel-close{
+    border:none; background:none;
+    font-size:20px;
+    color:var(--ink-soft);
+    line-height:1;
+    padding:4px;
+  }
+  .panel-body{
+    padding:20px 24px;
+    overflow-y:auto;
+    flex:1;
+  }
+  .field{margin-bottom:16px;}
+  .field label{
+    display:block;
+    font-size:12.5px;
+    font-weight:500;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+  }
+  .field input, .field textarea{
+    width:100%;
+    padding:9px 12px;
+    border:1px solid var(--line);
+    border-radius:7px;
+    font-size:14px;
+    font-family:inherit;
+    color:var(--ink);
+  }
+  .field input:focus, .field textarea:focus{outline:2px solid var(--accent); outline-offset:1px;}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .panel-foot{
+    padding:16px 24px 22px;
+    border-top:1px solid var(--line);
+    display:flex;
+    gap:10px;
+  }
+  .btn-ghost{
+    flex:1;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:10px;
+    font-size:14px;
+    color:var(--ink);
+  }
+  .btn-primary.full{flex:1; text-align:center;}
+
+  .hint{font-size:12px; color:var(--ink-soft); margin-top:4px;}
+
+  @media(max-width:640px){
+    .row2{grid-template-columns:1fr;}
+    table, thead, tbody, th, td, tr{display:block;}
+    thead{display:none;}
+    tbody tr{
+      padding:12px 14px;
+      border-left:3px solid var(--line);
+    }
+    tbody td{padding:3px 0; border:none;}
+    tbody td.actions{margin-top:8px;}
+    tbody td::before{
+      content:attr(data-label);
+      font-size:11px;
+      color:var(--ink-soft);
+      display:block;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="title-block">
+      <h1>Monitor Lisensi Zahir</h1>
+      <p>Pantau tanggal berakhir subscribe plugin per customer</p>
+    </div>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <div class="toolbar">
+    <div class="search">
+      <input type="text" id="searchInput" placeholder="Cari nama customer...">
+    </div>
+    <button class="btn-primary" id="addBtn">+ Tambah Customer</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th data-sort="customer">Customer</th>
+        <th data-sort="startDate">Mulai</th>
+        <th data-sort="expDate">Berakhir</th>
+        <th data-sort="license">Lisensi</th>
+        <th data-sort="nilai">Nilai</th>
+        <th>Catatan</th>
+        <th>Status</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div class="empty" id="emptyState" style="display:none;">Belum ada customer. Klik "Tambah Customer" untuk mulai.</div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="panel" id="panel">
+  <div class="panel-head">
+    <h2 id="panelTitle">Tambah Customer</h2>
+    <button class="panel-close" id="panelClose">&times;</button>
+  </div>
+  <div class="panel-body">
+    <div class="field">
+      <label for="f-customer">Nama Customer</label>
+      <input type="text" id="f-customer" placeholder="cth. KWP Cilacap">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="f-start">Tanggal Mulai</label>
+        <input type="date" id="f-start">
+      </div>
+      <div class="field">
+        <label for="f-exp">Tanggal Berakhir</label>
+        <input type="date" id="f-exp">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="f-license">Jumlah Lisensi</label>
+        <input type="number" id="f-license" min="1" value="1">
+      </div>
+      <div class="field">
+        <label for="f-nilai">Nilai (Rp)</label>
+        <input type="number" id="f-nilai" min="0" placeholder="0">
+      </div>
+    </div>
+    <div class="field">
+      <label for="f-note">Catatan</label>
+      <textarea id="f-note" rows="2" placeholder="opsional"></textarea>
+    </div>
+  </div>
+  <div class="panel-foot">
+    <button class="btn-ghost" id="cancelBtn">Batal</button>
+    <button class="btn-primary full" id="saveBtn">Simpan</button>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'zahir_subscriptions';
+let records = [];
+let sortKey = 'expDate';
+let sortDir = 1;
+let editingId = null;
+
+const SEED = [
+  {customer:'PT Gunung Gajah Abadi', startDate:'2025-07-10', expDate:'2026-07-09', license:2, nilai:10000000, note:'tidak perpanjang'},
+  {customer:'KWP Simpan Unit Pinjam PUSAT', startDate:'2025-07-19', expDate:'2026-06-18', license:1, nilai:3000000, note:''},
+  {customer:'Ibu Binti', startDate:'2026-06-08', expDate:'2026-12-08', license:1, nilai:4500000, note:'6 bulan'},
+  {customer:'MBGM', startDate:'2025-08-07', expDate:'2026-07-07', license:1, nilai:2500000, note:''},
+  {customer:'PT Putri Nil Sejati', startDate:'2025-09-11', expDate:'2026-08-11', license:1, nilai:0, note:''},
+  {customer:'Bapak Firas', startDate:'2025-11-12', expDate:'2026-10-12', license:1, nilai:2000000, note:''},
+  {customer:'KWP Cilacap', startDate:'2025-12-05', expDate:'2026-12-04', license:1, nilai:3000000, note:''},
+  {customer:'KWP Balongan', startDate:'2025-12-19', expDate:'2026-12-18', license:1, nilai:3000000, note:''},
+  {customer:'RS Bhakti Medicare', startDate:'2026-01-15', expDate:'2027-01-14', license:1, nilai:2000000, note:'Zerra'},
+  {customer:'Sarana Sirkuitindo, PT', startDate:'2026-02-07', expDate:'2027-02-06', license:1, nilai:2500000, note:''},
+  {customer:'MBGM', startDate:'2026-01-07', expDate:'2027-01-06', license:1, nilai:2500000, note:''},
+  {customer:'Bu EEN', startDate:'2026-07-31', expDate:'2027-01-31', license:1, nilai:4000000, note:'6 bulan'}
+].map(r => ({...r, id: crypto.randomUUID()}));
+
+async function loadData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      records = JSON.parse(raw);
+    } else {
+      records = SEED;
+      await persist();
+    }
+  }catch(e){
+    records = SEED;
+    try{ await persist(); }catch(e2){}
+  }
+  render();
+}
+
+async function persist(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  }catch(e){
+    console.error('Gagal menyimpan data', e);
+  }
+}
+
+function todayISO(){
+  const d = new Date();
+  return d.toISOString().slice(0,10);
+}
+
+function daysUntil(dateStr){
+  const today = new Date(todayISO());
+  const target = new Date(dateStr);
+  return Math.round((target - today) / 86400000);
+}
+
+function statusOf(dateStr){
+  const d = daysUntil(dateStr);
+  if(d < 0) return {level:'danger', label:'Kedaluwarsa'};
+  if(d <= 30) return {level:'warn', label:'Segera berakhir'};
+  return {level:'ok', label:'Aktif'};
+}
+
+function formatDateID(dateStr){
+  if(!dateStr) return '-';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'});
+}
+
+function formatRupiah(n){
+  if(!n) return '-';
+  return 'Rp ' + Number(n).toLocaleString('id-ID');
+}
+
+function computeStats(){
+  let ok=0, warn=0, danger=0;
+  records.forEach(r => {
+    const s = statusOf(r.expDate).level;
+    if(s==='ok') ok++; else if(s==='warn') warn++; else danger++;
+  });
+  return {ok, warn, danger, total: records.length};
+}
+
+function renderStats(){
+  const s = computeStats();
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="n mono">${s.total}</div><div class="l">Total customer</div></div>
+    <div class="stat ok"><div class="n mono">${s.ok}</div><div class="l">Aktif</div></div>
+    <div class="stat warn"><div class="n mono">${s.warn}</div><div class="l">Segera berakhir</div></div>
+    <div class="stat danger"><div class="n mono">${s.danger}</div><div class="l">Kedaluwarsa</div></div>
+  `;
+}
+
+function getFiltered(){
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  let list = records.filter(r => r.customer.toLowerCase().includes(q));
+  list.sort((a,b) => {
+    let av = a[sortKey], bv = b[sortKey];
+    if(sortKey === 'nilai' || sortKey === 'license'){
+      av = Number(av)||0; bv = Number(bv)||0;
+    } else if(sortKey === 'startDate' || sortKey === 'expDate'){
+      av = new Date(av); bv = new Date(bv);
+    } else {
+      av = String(av).toLowerCase(); bv = String(bv).toLowerCase();
+    }
+    if(av < bv) return -1 * sortDir;
+    if(av > bv) return 1 * sortDir;
+    return 0;
+  });
+  return list;
+}
+
+function render(){
+  renderStats();
+  const list = getFiltered();
+  const tbody = document.getElementById('tbody');
+  const empty = document.getElementById('emptyState');
+  if(list.length === 0){
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = list.map(r => {
+    const st = statusOf(r.expDate);
+    return `
+    <tr class="row-${st.level}">
+      <td class="cust" data-label="Customer">${escapeHtml(r.customer)}</td>
+      <td class="mono" data-label="Mulai">${formatDateID(r.startDate)}</td>
+      <td class="mono" data-label="Berakhir">${formatDateID(r.expDate)}</td>
+      <td class="mono" data-label="Lisensi">${r.license}</td>
+      <td class="mono" data-label="Nilai">${formatRupiah(r.nilai)}</td>
+      <td class="note" data-label="Catatan">${escapeHtml(r.note) || '-'}</td>
+      <td data-label="Status">
+        <div class="status-cell">
+          <span class="dot ${st.level}"></span>
+          <span class="status-text ${st.level}">${st.label}</span>
+        </div>
+      </td>
+      <td class="actions" data-label="Aksi">
+        <button class="icon-btn" onclick="renewRecord('${r.id}')">Perpanjang</button>
+        <button class="icon-btn" onclick="openForm('${r.id}')">Edit</button>
+        <button class="icon-btn del" onclick="deleteRecord('${r.id}')">Hapus</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function escapeHtml(s){
+  if(s === undefined || s === null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function openForm(id){
+  editingId = id || null;
+  const panelTitle = document.getElementById('panelTitle');
+  if(id){
+    const r = records.find(x => x.id === id);
+    panelTitle.textContent = 'Edit Customer';
+    document.getElementById('f-customer').value = r.customer;
+    document.getElementById('f-start').value = r.startDate;
+    document.getElementById('f-exp').value = r.expDate;
+    document.getElementById('f-license').value = r.license;
+    document.getElementById('f-nilai').value = r.nilai || '';
+    document.getElementById('f-note').value = r.note || '';
+  } else {
+    panelTitle.textContent = 'Tambah Customer';
+    document.getElementById('f-customer').value = '';
+    document.getElementById('f-start').value = todayISO();
+    document.getElementById('f-exp').value = '';
+    document.getElementById('f-license').value = 1;
+    document.getElementById('f-nilai').value = '';
+    document.getElementById('f-note').value = '';
+  }
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('panel').classList.add('show');
+}
+
+function closeForm(){
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('panel').classList.remove('show');
+  editingId = null;
+}
+
+async function saveRecord(){
+  const customer = document.getElementById('f-customer').value.trim();
+  const startDate = document.getElementById('f-start').value;
+  const expDate = document.getElementById('f-exp').value;
+  const license = Number(document.getElementById('f-license').value) || 1;
+  const nilai = Number(document.getElementById('f-nilai').value) || 0;
+  const note = document.getElementById('f-note').value.trim();
+
+  if(!customer || !startDate || !expDate){
+    alert('Nama customer, tanggal mulai, dan tanggal berakhir wajib diisi.');
+    return;
+  }
+
+  if(editingId){
+    const r = records.find(x => x.id === editingId);
+    Object.assign(r, {customer, startDate, expDate, license, nilai, note});
+  } else {
+    records.push({id: crypto.randomUUID(), customer, startDate, expDate, license, nilai, note});
+  }
+  await persist();
+  closeForm();
+  render();
+}
+
+async function deleteRecord(id){
+  const r = records.find(x => x.id === id);
+  if(!r) return;
+  if(!confirm(`Hapus data "${r.customer}"?`)) return;
+  records = records.filter(x => x.id !== id);
+  await persist();
+  render();
+}
+
+async function renewRecord(id){
+  const r = records.find(x => x.id === id);
+  if(!r) return;
+  const input = prompt(`Perpanjang "${r.customer}" berapa bulan dari tanggal berakhir saat ini (${formatDateID(r.expDate)})?`, '12');
+  if(input === null) return;
+  const months = Number(input);
+  if(!months || months <= 0){
+    alert('Masukkan jumlah bulan yang valid.');
+    return;
+  }
+  const newStart = r.expDate;
+  const d = new Date(r.expDate);
+  d.setMonth(d.getMonth() + months);
+  const newExp = d.toISOString().slice(0,10);
+  r.startDate = newStart;
+  r.expDate = newExp;
+  await persist();
+  render();
+}
+
+document.getElementById('addBtn').addEventListener('click', () => openForm(null));
+document.getElementById('panelClose').addEventListener('click', closeForm);
+document.getElementById('cancelBtn').addEventListener('click', closeForm);
+document.getElementById('overlay').addEventListener('click', closeForm);
+document.getElementById('saveBtn').addEventListener('click', saveRecord);
+document.getElementById('searchInput').addEventListener('input', render);
+document.querySelectorAll('th[data-sort]').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.sort;
+    if(sortKey === key){ sortDir *= -1; } else { sortKey = key; sortDir = 1; }
+    render();
+  });
+});
+
+loadData();
+</script>
+</body>
+</html>

@@ -26,15 +26,20 @@
   --sidebar-bg:linear-gradient(180deg, #1a1f30 0%, #141827 100%);
   --sidebar-text:rgba(255,255,255,.95);--sidebar-active:rgba(255,255,255,.2);
   --shadow:0 4px 14px rgba(108,99,255,.2);--shadow-lg:0 8px 28px rgba(108,99,255,.3);
+  --primary:#2563eb;--primary-light:#dbeafe;--primary-dark:#1d4ed8;
+  --success:#059669;--success-bg:#d1fae5;--danger:#dc2626;--danger-bg:#fee2e2;
+  --warn:#d97706;--warn-bg:#fef3c7;--info:#0891b2;--info-bg:#cffafe;
 }
 [data-theme="dark"]{
-  --bg:linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #164e63 100%);--surface:linear-gradient(135deg, #1e293b 0%, #1a365d 100%);--surface2:linear-gradient(135deg, #293548 0%, #1e3a5f 100%);--border:#334155;--border2:#475569;
-  --primary:#3b82f6;--primary-light:#1e3a8a;--primary-dark:#2563eb;
-  --success:#10b981;--success-bg:#064e3b;--danger:#f87171;--danger-bg:#7f1d1d;
-  --warn:#fbbf24;--warn-bg:#78350f;--info:#06b6d4;--info-bg:#164e63;
-  --purple:#a855f7;--purple-bg:#6b21a8;--pink:#f472b6;--pink-bg:#831843;
-  --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;
-  --sidebar-bg:linear-gradient(180deg, #1e40af 0%, #1e3a5f 25%, #0891b2 50%, #0e7490 75%, #164e63 100%);--shadow:0 2px 8px rgba(37,99,235,.25);
+  color-scheme:dark;
+  --bg:#101126;--surface:#1a1c38;--surface2:#22254a;--border:#2a2d52;--border2:#383c68;
+  --primary:#8b97ff;--primary-light:rgba(139,151,255,.15);--primary-dark:#6c7bff;
+  --success:#34d399;--success-bg:rgba(52,211,153,.14);--danger:#f87171;--danger-bg:rgba(248,113,113,.14);
+  --warn:#fbbf24;--warn-bg:rgba(251,191,36,.14);--info:#38bdf8;--info-bg:rgba(56,189,248,.14);
+  --purple:#a78bfa;--purple-bg:rgba(167,139,250,.16);--pink:#f472b6;--pink-bg:rgba(244,114,182,.16);
+  --text:#e8eaf6;--text2:#a4a9cc;--text3:#6f75a0;
+  --sidebar-bg:#14162d;--sidebar-text:rgba(232,234,246,.78);--sidebar-active:#262a52;
+  --shadow:0 1px 3px rgba(0,0,0,.35);--shadow-lg:0 14px 36px rgba(0,0,0,.55);
 }
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;transition:background .2s,color .2s}
 
@@ -323,6 +328,7 @@ tbody td{padding:10px 11px;font-size:12px;vertical-align:middle}
 .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
 .search-box{position:relative;flex:1;min-width:180px}
 .search-box input{padding-left:32px}
+.toolbar select,.toolbar input[type=date]{width:auto}
 .search-box svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);width:14px;height:14px;pointer-events:none}
 
 /* MODAL */
@@ -422,6 +428,126 @@ mark.sh{background:#fef08a;color:#713f12;border-radius:2px;padding:0 1px}
 /* HISTORY TRIGGER BUTTON */
 .btn-history{background:var(--primary-light);color:var(--primary);border:1px solid var(--primary)}
 .btn-history:hover{background:var(--primary);color:#fff}
+
+/* =====================================================================
+   DARK MODE — gaya datar ala Zahir Online (latar navy gelap, kartu solid,
+   tanpa gradien/glow, aksen lembut). Hanya aktif saat [data-theme="dark"].
+   ===================================================================== */
+[data-theme="dark"] body{background:var(--bg);color:var(--text)}
+[data-theme="dark"] ::-webkit-scrollbar{width:10px;height:10px}
+[data-theme="dark"] ::-webkit-scrollbar-track{background:transparent}
+[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#2f3360;border-radius:8px;border:2px solid var(--bg)}
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover{background:#40457a}
+[data-theme="dark"] ::selection{background:rgba(139,151,255,.35)}
+
+/* Layar login */
+[data-theme="dark"] .auth-screen{background:#0d0e20}
+[data-theme="dark"] .auth-card{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--primary);box-shadow:var(--shadow-lg)}
+[data-theme="dark"] .auth-title{background:none;-webkit-text-fill-color:var(--text);color:var(--text)}
+[data-theme="dark"] .auth-sub,[data-theme="dark"] .auth-loading{color:var(--text2)}
+[data-theme="dark"] .auth-denied{background:var(--danger-bg);border:1px solid rgba(248,113,113,.35);color:var(--danger)}
+[data-theme="dark"] .google-btn{background:var(--surface2);border:1px solid var(--border2);color:var(--text)}
+[data-theme="dark"] .google-btn:hover{background:#2b2f5c;box-shadow:none}
+
+/* Sidebar */
+[data-theme="dark"] .sidebar{background:var(--sidebar-bg);border-right:1px solid var(--border);box-shadow:none}
+[data-theme="dark"] .sidebar-brand,[data-theme="dark"] .sidebar-bottom{border-color:var(--border)}
+[data-theme="dark"] .sidebar-brand-text p,[data-theme="dark"] .user-email{color:var(--text3)}
+[data-theme="dark"] .sidebar-toggle{background:rgba(255,255,255,.06)}
+[data-theme="dark"] .sidebar-toggle:hover{background:rgba(255,255,255,.12)}
+[data-theme="dark"] .nav-section-label{color:var(--text3)}
+[data-theme="dark"] .nav-item{border-radius:10px}
+[data-theme="dark"] .nav-item:hover{background:rgba(255,255,255,.05);transform:none;color:#fff}
+[data-theme="dark"] .nav-item.active{background:var(--sidebar-active);color:#fff}
+[data-theme="dark"] .nav-item.active svg{color:var(--primary)}
+[data-theme="dark"] .nav-tooltip{background:var(--surface2);border:1px solid var(--border2)}
+[data-theme="dark"] .user-avatar{background:var(--surface2)}
+
+/* Topbar */
+[data-theme="dark"] .topbar{background:var(--sidebar-bg);border-bottom:1px solid var(--border);box-shadow:none}
+
+/* Kartu */
+[data-theme="dark"] .card,[data-theme="dark"] .card:hover{background:var(--surface);border:1px solid var(--border);border-left:1px solid var(--border) !important;border-radius:14px;box-shadow:none !important;transform:none !important;backdrop-filter:none}
+[data-theme="dark"] .card:hover{border-color:var(--border2)}
+[data-theme="dark"] .card-header{background:transparent;border-bottom:1px solid var(--border)}
+[data-theme="dark"] .card-body{background:transparent}
+
+/* Kartu statistik: datar dengan garis aksen tipis di kiri */
+[data-theme="dark"] .stat-card{background:var(--surface) !important;border:1px solid var(--border);border-left:3px solid var(--primary) !important;box-shadow:none !important;transform:none !important}
+[data-theme="dark"] .stat-card::before{display:none}
+[data-theme="dark"] .stat-card:hover{border-color:var(--border2)}
+[data-theme="dark"] .grid-4 .stat-card:nth-child(1){border-left-color:#8b97ff !important}
+[data-theme="dark"] .grid-4 .stat-card:nth-child(2),[data-theme="dark"] .stat-card.success{border-left-color:#34d399 !important}
+[data-theme="dark"] .grid-4 .stat-card:nth-child(3),[data-theme="dark"] .stat-card.warn{border-left-color:#fbbf24 !important}
+[data-theme="dark"] .grid-4 .stat-card:nth-child(4),[data-theme="dark"] .stat-card.danger{border-left-color:#f87171 !important}
+[data-theme="dark"] .stat-card.purple{border-left-color:#a78bfa !important}
+[data-theme="dark"] .stat-card .stat-label{color:var(--text2)}
+[data-theme="dark"] .stat-card .stat-sub{color:var(--text3)}
+[data-theme="dark"] .stat-value{color:var(--text)}
+[data-theme="dark"] .stat-card.success .stat-value{color:#34d399}
+[data-theme="dark"] .stat-card.danger .stat-value{color:#f87171}
+[data-theme="dark"] .stat-card.warn .stat-value{color:#fbbf24}
+[data-theme="dark"] .stat-card.purple .stat-value{color:#c4b5fd}
+
+/* Form */
+[data-theme="dark"] input[type=text],[data-theme="dark"] input[type=date],[data-theme="dark"] input[type=number],
+[data-theme="dark"] select,[data-theme="dark"] textarea{background:#12142b;border:1px solid var(--border2);color:var(--text)}
+[data-theme="dark"] input::placeholder,[data-theme="dark"] textarea::placeholder{color:var(--text3)}
+[data-theme="dark"] input:focus,[data-theme="dark"] select:focus,[data-theme="dark"] textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(139,151,255,.2)}
+[data-theme="dark"] select option{background:#1a1c38;color:var(--text)}
+[data-theme="dark"] .multiselect-display{background:#12142b;border:1px solid var(--border2)}
+[data-theme="dark"] .multiselect-dropdown{background:var(--surface);border:1px solid var(--border2)}
+[data-theme="dark"] .ms-tag{background:var(--primary-light);color:#b4bcff;border:1px solid rgba(139,151,255,.35)}
+
+/* Tombol */
+[data-theme="dark"] .btn-primary{background:#5b6cf5;box-shadow:none}
+[data-theme="dark"] .btn-primary:hover{background:#6f7eff;transform:none;box-shadow:none}
+[data-theme="dark"] .btn-secondary{background:transparent;border:1px solid var(--border2);color:var(--text)}
+[data-theme="dark"] .btn-secondary:hover{background:var(--surface2);border-color:var(--primary)}
+[data-theme="dark"] .btn-success{background:#12a37a;box-shadow:none}
+[data-theme="dark"] .btn-success:hover{background:#17b98b;transform:none;box-shadow:none}
+[data-theme="dark"] .btn-danger{background:#d6456a;box-shadow:none}
+[data-theme="dark"] .btn-danger:hover{background:#e5587c;transform:none;box-shadow:none}
+[data-theme="dark"] .btn-warn{background:#3b6fd8;box-shadow:none}
+[data-theme="dark"] .btn-warn:hover{background:#4f83ee;transform:none;box-shadow:none}
+[data-theme="dark"] .aksi-btn.hapus{border-color:rgba(248,113,113,.3)}
+
+/* Tabel */
+[data-theme="dark"] thead th{background:var(--surface2);color:var(--text2);border-bottom:1px solid var(--border2)}
+[data-theme="dark"] tbody tr{background:transparent;border-bottom:1px solid var(--border)}
+[data-theme="dark"] tbody tr:nth-child(even){background:rgba(255,255,255,.02)}
+[data-theme="dark"] tbody tr:hover{background:rgba(139,151,255,.08);box-shadow:none}
+[data-theme="dark"] .td-name{color:#9fb0ff}
+
+/* Badge: tinted transparan */
+[data-theme="dark"] .badge{box-shadow:none}
+[data-theme="dark"] .badge-active,[data-theme="dark"] .badge-tipe-perpanjangan,[data-theme="dark"] .badge-komisi-diklaim{background:rgba(52,211,153,.15);color:#34d399}
+[data-theme="dark"] .badge-expired{background:rgba(248,113,113,.15);color:#f87171}
+[data-theme="dark"] .badge-expiring,[data-theme="dark"] .badge-tipe-reaktivasi,[data-theme="dark"] .badge-komisi-belum{background:rgba(251,191,36,.15);color:#fbbf24}
+[data-theme="dark"] .badge-blue,[data-theme="dark"] .badge-tipe-baru{background:rgba(139,151,255,.16);color:#a5b0ff}
+[data-theme="dark"] .badge-gray,[data-theme="dark"] .badge-tipe-perbaikan,[data-theme="dark"] .badge-komisi-tidak{background:rgba(164,169,204,.14);color:var(--text2)}
+
+/* Modal, toast, lain-lain */
+[data-theme="dark"] .modal-overlay,[data-theme="dark"] .loading-overlay{background:rgba(6,7,20,.72)}
+[data-theme="dark"] .modal{background:var(--surface);border:1px solid var(--border2);backdrop-filter:none}
+[data-theme="dark"] .modal-header{background:var(--surface);border-bottom:1px solid var(--border)}
+[data-theme="dark"] .modal-footer{background:var(--surface);border-top:1px solid var(--border)}
+[data-theme="dark"] .toast{background:var(--surface2);border:1px solid var(--border2);color:var(--text)}
+[data-theme="dark"] .toast.success{background:#0f5f49;border-color:#12a37a;color:#d1fae5}
+[data-theme="dark"] .toast.danger{background:#6b1f2e;border-color:#d6456a;color:#fee2e2}
+[data-theme="dark"] .toast.info{background:#23336e;border-color:#5b6cf5;color:#dbe1ff}
+[data-theme="dark"] mark.sh{background:rgba(250,204,21,.28);color:#fde68a}
+[data-theme="dark"] .fb-dot.online{box-shadow:0 0 0 3px rgba(34,197,94,.18)}
+[data-theme="dark"] .toggle{background:#2f3360}
+[data-theme="dark"] .toggle.on{background:#5b6cf5}
+[data-theme="dark"] .page-btn.active{background:#5b6cf5;border-color:#5b6cf5}
+[data-theme="dark"] .history-item,[data-theme="dark"] .history-summary-card,[data-theme="dark"] .serial-group-header{background:var(--surface2)}
+[data-theme="dark"] .guide-hero{background:linear-gradient(135deg,#1f2454,#2a2f6b);border:1px solid var(--border2)}
+[data-theme="dark"] .guide-card-badge.admin{background:var(--warn-bg);color:var(--warn)}
+
+@media print{
+  [data-theme="dark"] body{background:#fff;color:#000}
+}
 
 @media print{
   .sidebar,.topbar,.toolbar,.modal-overlay,.btn:not(.no-hide),.auth-screen,.loading-overlay{display:none!important}
@@ -2986,7 +3112,7 @@ function renderHistoryPage(){
           <div style="font-size:10px;color:var(--text3)">${serialGroups.length} nomor serial · ${totalRec} total record</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
-          ${hasChange?'<span class="badge" style="background:#fee2e2;color:#dc2626">⚡ Ada Perubahan Kode</span>':''}
+          ${hasChange?'<span class="badge" style="background:var(--danger-bg);color:var(--danger)">⚡ Ada Perubahan Kode</span>':''}
           <button class="btn btn-history btn-sm" onclick="event.stopPropagation();openHistory('${jsArg(nama)}','')">📜 Detail</button>
         </div>
       </div>
@@ -3010,7 +3136,7 @@ function renderHistoryPage(){
       html+=`<tr style="border-bottom:1px solid var(--border)">
         <td style="padding:7px 10px;font-family:monospace;font-size:11px">${g.serial||'(Kosong)'}</td>
         <td style="padding:7px 10px;text-align:center"><span class="badge badge-blue">${g.records.length}x</span></td>
-        <td style="padding:7px 10px;text-align:center">${codeChanged?`<span class="badge" style="background:#fee2e2;color:#dc2626">⚡ ${codes.length} kode berbeda</span>`:'<span class="badge badge-active">✓ Sama</span>'}</td>
+        <td style="padding:7px 10px;text-align:center">${codeChanged?`<span class="badge" style="background:var(--danger-bg);color:var(--danger)">⚡ ${codes.length} kode berbeda</span>`:'<span class="badge badge-active">✓ Sama</span>'}</td>
         <td style="padding:7px 10px;text-align:center">${statusBadge(getStatus(latestRec?.tglAktif))}</td>
         <td style="padding:7px 10px;font-size:11px">${fmtDate(firstRec?.tglReg)}</td>
         <td style="padding:7px 10px"><button class="btn btn-history btn-sm" onclick="openHistory('${jsArg(g.nama)}','${jsArg(g.serial||'')}')">📜 Riwayat</button></td>
@@ -3243,8 +3369,8 @@ function renderKomisi(){
   if(grid) grid.innerHTML=`
     <div class="stat-card"><div class="stat-label">⏳ Belum Diklaim</div><div class="stat-value" style="color:var(--warn)">${totalBelum}</div><div class="stat-sub">menunggu klaim</div></div>
     <div class="stat-card"><div class="stat-label">✅ Sudah Diklaim</div><div class="stat-value" style="color:var(--success)">${totalDiklaim}</div><div class="stat-sub">komisi terklaim</div></div>
-    <div class="stat-card"><div class="stat-label">🆕 Baru (filter)</div><div class="stat-value" style="color:#1e40af">${totalBaru}</div><div class="stat-sub">dalam tampilan ini</div></div>
-    <div class="stat-card"><div class="stat-label">🔄 Perpanjangan (filter)</div><div class="stat-value" style="color:#065f46">${totalPerp}</div><div class="stat-sub">dalam tampilan ini</div></div>`;
+    <div class="stat-card"><div class="stat-label">🆕 Baru (filter)</div><div class="stat-value" style="color:var(--primary)">${totalBaru}</div><div class="stat-sub">dalam tampilan ini</div></div>
+    <div class="stat-card"><div class="stat-label">🔄 Perpanjangan (filter)</div><div class="stat-value" style="color:var(--success)">${totalPerp}</div><div class="stat-sub">dalam tampilan ini</div></div>`;
 
   // Tombol Klaim Semua — hanya aktif jika ada data belum diklaim
   const btnKlaim = document.getElementById('btn-klaim-semua');
@@ -3782,7 +3908,7 @@ function renderImportPreview(){
   document.getElementById('imp-summary').textContent=`${p.length} baris — ${ok} siap, ${dup} duplikat dilewati, ${er} error`;
   const badge=x=>x.status==='ok'?'<span class="badge badge-active">Siap</span>'
     : x.status==='dup'?'<span class="badge badge-expiring">Sudah ada</span>'
-    : `<span class="badge badge-expired">Error</span><div style="font-size:11px;color:#b91c1c;margin-top:3px">${esc(x.note)}</div>`;
+    : `<span class="badge badge-expired">Error</span><div style="font-size:11px;color:var(--danger);margin-top:3px">${esc(x.note)}</div>`;
   const LIMIT=500;
   document.getElementById('imp-preview').innerHTML=p.slice(0,LIMIT).map(x=>`<tr>
     <td>${x.n}</td><td><b>${esc(x.nama)||'–'}</b></td><td>${x.tglReg?fmtDate(x.tglReg):'–'}</td><td>${x.tglAktif?fmtDate(x.tglAktif):'–'}</td>

@@ -592,8 +592,7 @@ mark.sh{background:#fef08a;color:#713f12;border-radius:2px;padding:0 1px}
       <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
       Login dengan Google
     </button>
-    <div class="auth-loading" id="auth-loading">⏳ Memverifikasi akun...</div>
-  </div>
+    <div class="auth-loading" id="auth-loading">⏳ Memverifikasi akun...</div>  </div>
 </div>
 
 <!-- LOADING OVERLAY -->
@@ -2245,6 +2244,22 @@ mark.sh{background:#fef08a;color:#713f12;border-radius:2px;padding:0 1px}
     closeRcgModal();
   };
 })();
+</script>
+
+<!-- Watchdog: kalau module script Firebase gagal dimuat (network/CSP/ad-blocker),
+     tampilkan pesan yang terlihat oleh user, bukan diam total tanpa respons. -->
+<script>
+  setTimeout(function(){
+    if (typeof window.signInWithGoogle !== 'function'){
+      var err = document.getElementById('auth-error');
+      var loading = document.getElementById('auth-loading');
+      if (loading) loading.style.display='none';
+      if (err){
+        err.style.display='block';
+        err.textContent = '⚠️ Gagal memuat sistem login. Coba: (1) matikan ad-blocker/ekstensi, (2) periksa koneksi internet, (3) muat ulang halaman (Ctrl+Shift+R). Jika masih gagal, hubungi administrator.';
+      }
+    }
+  }, 6000);
 </script>
 
 <!-- FIREBASE SDK -->
@@ -4399,4 +4414,101 @@ function renderImportPreview(){
     : x.status==='dup'?'<span class="badge badge-expiring">Sudah ada</span>'
     : `<span class="badge badge-expired">Error</span><div style="font-size:11px;color:var(--danger);margin-top:3px">${esc(x.note)}</div>`;
   const LIMIT=500;
-  document.getElementById('imp-preview').innerHTML=p.slice(0,LIMIT).ma
+  document.getElementById('imp-preview').innerHTML=p.slice(0,LIMIT).map(x=>`<tr>
+    <td>${x.n}</td><td><b>${esc(x.nama)||'–'}</b></td><td>${x.tglReg?fmtDate(x.tglReg):'–'}</td><td>${x.tglAktif?fmtDate(x.tglAktif):'–'}</td>
+    <td>${esc(x.paket)||'–'}</td><td>${esc(x.tipe)||'–'}</td><td>${x.lisensi??'–'}</td><td>${x.nilai!==null?esc(impFmtRp(x.nilai)):'–'}</td>
+    <td style="max-width:220px">${esc(x.catatan)||'–'}</td><td>${badge(x)}</td></tr>`).join('')
+    + (p.length>LIMIT?`<tr><td colspan="10" style="text-align:center;color:var(--text2)">… ${p.length-LIMIT} baris lainnya tidak ditampilkan (tetap ikut diimpor)</td></tr>`:'');
+  const btn=document.getElementById('imp-run');
+  btn.disabled = ok===0; btn.textContent = ok?`🚀 Import ${ok} Data`:'🚀 Import';
+}
+async function importRun(){
+  if(currentUserRole!=='admin') return showToast('Hanya admin yang boleh import data','danger');
+  const list=impState.prepared.filter(x=>x.status==='ok');
+  if(!list.length) return showToast('Tidak ada baris yang siap diimpor','danger');
+  if(!confirm(`Import ${list.length} data ke Firestore?\n\nData yang sudah diimpor tidak bisa dibatalkan otomatis (bisa dihapus manual per baris).`)) return;
+  const prog=document.getElementById('imp-progress'), msg=document.getElementById('imp-msg'), fill=document.getElementById('imp-fill');
+  prog.style.display='block'; fill.style.width='0%';
+  const batchId='imp-'+Date.now();
+  const who=currentUser?.displayName||currentUser?.email||'–';
+  try{
+    let done=0;
+    for(let i=0;i<list.length;i+=400){
+      const batch=writeBatch(db);
+      list.slice(i,i+400).forEach(x=>{
+        const komisi = x.komisiOn && (x.tipe==='Baru'||x.tipe==='Perpanjangan');
+        const rec={
+          nama:x.nama, invoice:x.invoice, paket:x.paket, tglReg:x.tglReg, tglAktif:x.tglAktif, tipe:x.tipe,
+          adaKomisi:komisi, statusKomisi:komisi?'belum':'tidak_berlaku', tipeAwalKomisi:komisi?x.tipe:'',
+          idKomp:x.idKomp, serial:x.serial, code:x.code, catatan:x.catatan,
+          userInput:who, userEmail:currentUser?.email||'–',
+          sumber:'import-tempel', importBatch:batchId,
+          createdAt:serverTimestamp(), updatedAt:serverTimestamp(), importedAt:serverTimestamp()
+        };
+        if(x.lisensi!==null) rec.lisensi=x.lisensi;
+        if(x.nilai!==null) rec.nilai=x.nilai;
+        batch.set(doc(collection(db,'registrasi')),rec);
+      });
+      await batch.commit();
+      done+=Math.min(400,list.length-i);
+      const pct=Math.round(done/list.length*100);
+      fill.style.width=pct+'%'; msg.textContent=`Mengimpor... ${done}/${list.length} (${pct}%)`;
+    }
+    msg.textContent='Import selesai! ✓';
+    showToast(`Import berhasil: ${list.length} data`,'success');
+    setTimeout(()=>{ importReset(); gotoPage('list',null); },900);
+  }catch(e){
+    prog.style.display='none';
+    showToast('Gagal import: '+e.message,'danger');
+  }
+}
+Object.assign(window,{importParse,importReset,importLoadFile,importSetMap,importRebuild,importRun});
+
+// ========== SYS INFO ==========
+function updateSysInfo(){
+  const el=document.getElementById('sys-info'); if(!el) return;
+  const roleLabel = currentUserRole==='admin'
+    ? '<span class="badge badge-active">Admin</span>'
+    : '<span class="badge badge-blue">User</span>';
+  // Tampilkan/sembunyikan tombol import Excel sesuai role
+  const importBtn=document.getElementById('btn-import-excel');
+  const importNote=document.getElementById('import-note-nonadmin');
+  if(importBtn) importBtn.style.display = currentUserRole==='admin' ? '' : 'none';
+  if(importNote) importNote.style.display = currentUserRole!=='admin' ? '' : 'none';
+  el.innerHTML=`
+    <div style="margin-bottom:6px"><b>Project ID:</b> ${esc(firebaseConfig.projectId)}</div>
+    <div style="margin-bottom:6px"><b>User Login:</b> ${currentUser?.displayName||'–'}</div>
+    <div style="margin-bottom:6px"><b>Email:</b> ${currentUser?.email||'–'}</div>
+    <div style="margin-bottom:6px"><b>Role:</b> ${roleLabel}</div>
+    <div style="margin-bottom:6px"><b>Total Data:</b> ${DB.length} records</div>
+    <div><b>Versi App:</b> 3.0 (Firebase + Tipe Registrasi + Rekap Komisi + History Update)</div>`;
+}
+
+// ========== PANDUAN PENGGUNAAN ==========
+function switchGuideTab(name, el){
+  document.querySelectorAll('.guide-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.guide-tab').forEach(t=>t.classList.remove('active'));
+  const sec=document.getElementById('gsec-'+name);
+  if(sec) sec.classList.add('active');
+  if(el) el.classList.add('active');
+}
+function toggleGuideCard(headerEl){
+  const card=headerEl.closest('.guide-card');
+  card.classList.toggle('collapsed');
+}
+window.switchGuideTab=switchGuideTab;
+window.toggleGuideCard=toggleGuideCard;
+
+// Keyboard shortcuts
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    closeModal();
+    closeHistory();
+    closeUpdateHistory();
+    document.getElementById('modal-del').classList.remove('open');
+    document.getElementById('modal-add-user').classList.remove('open');
+  }
+});
+</script>
+</body>
+</html>

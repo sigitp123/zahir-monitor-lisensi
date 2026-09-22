@@ -2026,14 +2026,31 @@ mark.sh{background:#fef08a;color:#713f12;border-radius:2px;padding:0 1px}
     <div class="modal-header"><h2>🧮 Zahir Release Code Generator</h2><button class="btn btn-secondary btn-icon" onclick="closeRcgModal()">✕</button></div>
     <div class="modal-body">
       <div class="form-group">
-        <label class="form-label">Application Key <span class="req">*</span></label>
-        <select id="rcg-app">
-          <option value="">======== Choose Application</option>
+        <label class="form-label">Aplikasi Utama <span style="font-weight:400;color:var(--text3)">— pakai ini ATAU centang menu di bawah, tidak keduanya</span></label>
+        <select id="rcg-app" onchange="if(this.value){document.querySelectorAll('#rcg-menu-list input[type=checkbox]').forEach(c=>c.checked=false)}">
+          <option value="">-- Tidak dipakai --</option>
           <option value="Nestle">Nestle</option>
           <option value="SidoMuncul">Sido Muncul</option>
           <option value="ZCEKTRANSAKSI">Cek Transaksi</option>
-          <option value="ZIMPORTRANSAKSI">Impor Transaksi</option>
+          <option value="ZIMPORTRANSAKSI">Impor Transaksi (semua menu)</option>
         </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Menu Import Transaksi <span style="font-weight:400;color:var(--text3)">— centang satu atau lebih; kombinasi berbeda = kode berbeda (BARU, belum aktif di Zahir Accounting 6)</span></label>
+        <div id="rcg-menu-list" style="max-height:160px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px">
+          <label style="display:block;padding:2px 0"><input type="checkbox" value="SaldoAwalPersediaan" onchange="rcgMenuChanged(this)"> Saldo Awal Persediaan</label>
+          <label style="display:block;padding:2px 0"><input type="checkbox" value="SaldoAwalPiutangUsaha" onchange="rcgMenuChanged(this)"> Saldo Awal Piutang Usaha</label>
+          <label style="display:block;padding:2px 0"><input type="checkbox" value="SaldoAwalHutangUsaha" onchange="rcgMenuChanged(this)"> Saldo Awal Hutang Usaha</label>
+          <label style="display:block;padding:2px 0"><input type="checkbox" value="StockOpname" onchange="rcgMenuChanged(this)"> Stock Opname</label>
+          <label style="display:block;padding:2px 0"><input type="checkbox" value="TransaksiPenjualanPembelian" onchange="rcgMenuChanged(this)"> Transaksi Penjualan/Pembelian</label>
+          <label style="display:block;padding:2px 0"><input type="checkbox" value="TransaksiSalesOrder" onchange="rcgMenuChanged(this)"> Transaksi Sales Order</label>
+          <label style="display:block;padding:2px 0"><input type="checkbox" value="TransaksiJurnalUmum" onchange="rcgMenuChanged(this)"> Transaksi Jurnal Umum</label>
+          <label style="display:block;padding:2px 0"><input type="checkbox" value="TransaksiKas" onchange="rcgMenuChanged(this)"> Transaksi Kas</label>
+          <label style="display:block;padding:2px 0"><input type="checkbox" value="TransaksiPembayaranHutangPiutang" onchange="rcgMenuChanged(this)"> Transaksi Pembayaran Hutang/Piutang</label>
+          <label style="display:block;padding:2px 0"><input type="checkbox" value="TransaksiPurchaseOrder" onchange="rcgMenuChanged(this)"> Transaksi Purchase Order</label>
+          <label style="display:block;padding:2px 0"><input type="checkbox" value="ImporDataBarangMultiPriceDiskon" onchange="rcgMenuChanged(this)"> Impor Data Barang Multi Price/Diskon</label>
+          <label style="display:block;padding:2px 0"><input type="checkbox" value="ImporDataHartaTetap" onchange="rcgMenuChanged(this)"> Impor Data Harta Tetap</label>
+        </div>
       </div>
       <div class="form-group">
         <label class="form-label">Machine ID</label>
@@ -2074,7 +2091,23 @@ mark.sh{background:#fef08a;color:#713f12;border-radius:2px;padding:0 1px}
     Nestle:         '2B1611A38B14C22F1133DD1F5FC793E7',
     SidoMuncul:     '4C90E4BE517000246ADA801385DFAF7D',
     ZCEKTRANSAKSI:  '753267ACD1D4E5B4CD9D07FBC60B67C7',
-    ZIMPORTRANSAKSI:'008056BA31001C8D540D9420DEB29768'
+    ZIMPORTRANSAKSI:'008056BA31001C8D540D9420DEB29768',
+    // -- Key baru per submenu "Import Transaksi" --
+    // CATATAN: key ini baru dibuat di sisi tools registrasi.
+    // Code hanya akan tervalidasi jika key yang SAMA juga ditambahkan
+    // ke sisi Zahir Accounting 6 (source/config validasi produk).
+    SaldoAwalPersediaan:              '90EFE8DC68574B3A6CD3C3C459FAEC48',
+    SaldoAwalPiutangUsaha:            '86AD1822778763E7D7B1C9A62FB527EE',
+    SaldoAwalHutangUsaha:             '023F53F447E77129EBBFE3D8C9269BE9',
+    StockOpname:                      '22549F559E106617E0413C56F3E1C713',
+    TransaksiPenjualanPembelian:      'C8F1D4174F89BFCAD08CAC19AA68F5EC',
+    TransaksiSalesOrder:              '43DBC0F3EAF08095DB9C87EE6BC6EF26',
+    TransaksiJurnalUmum:              'C0A79392E48EBBF62710A3CA77825497',
+    TransaksiKas:                     'C433D3A912E19102E2C588FA51E69812',
+    TransaksiPembayaranHutangPiutang: '1CFE9A01F8A4D57E9027200D38751772',
+    TransaksiPurchaseOrder:           '2F3D144D89D747C89E303D7FA7416754',
+    ImporDataBarangMultiPriceDiskon:  '08BD3A6AAD4F86F141BA414770D7A6AE',
+    ImporDataHartaTetap:              '9C73282CD2B594B111978474D33A9217'
   };
   const CKEYBOX = [
     [[0,3,1],[2,1,3],[1,0,2],[3,2,0]],
@@ -2083,6 +2116,22 @@ mark.sh{background:#fef08a;color:#713f12;border-radius:2px;padding:0 1px}
   const SERIAL_CHECK = 0x3C69;
   const B15 = '0123456789ABCDE';
   const u32 = x => x >>> 0;
+
+  // Gabungkan beberapa key menu (XOR per-byte) jadi satu key 128-bit unik untuk
+  // kombinasi itu -- kombinasi berbeda hampir pasti menghasilkan key berbeda,
+  // dan kombinasi yang sama akan selalu menghasilkan key yang sama (deterministik).
+  function combineKeys(hexKeys){
+    const bytes = new Array(16).fill(0);
+    hexKeys.forEach(hex=>{
+      for (let i=0;i<16;i++){
+        bytes[i] ^= parseInt(hex.substr(i*2,2),16);
+      }
+    });
+    return bytes.map(b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();
+  }
+  window.rcgMenuChanged = function(el){
+    if (el.checked) document.getElementById('rcg-app').value = '';
+  };
 
   function keyToDwords(hex){
     const d = [];
@@ -2154,18 +2203,29 @@ mark.sh{background:#fef08a;color:#713f12;border-radius:2px;padding:0 1px}
     errEl.style.display='none';
     try{
       const appKey = document.getElementById('rcg-app').value;
-      if (!appKey) throw new Error('Pilih Application terlebih dahulu.');
+      const checked = Array.from(document.querySelectorAll('#rcg-menu-list input[type=checkbox]:checked'));
+      let keyHex, label;
+      if (checked.length){
+        keyHex = combineKeys(checked.map(c => RCG_KEYS[c.value]));
+        label = checked.map(c => c.parentElement.textContent.trim()).join(', ');
+      } else if (appKey){
+        keyHex = RCG_KEYS[appKey];
+        label = document.getElementById('rcg-app').selectedOptions[0].textContent;
+      } else {
+        throw new Error('Pilih Aplikasi Utama, atau centang minimal satu menu.');
+      }
       const serial = document.getElementById('rcg-serial').value.trim();
       if (!serial) throw new Error('Serial Number wajib diisi.');
       const machId = document.getElementById('rcg-machid').value.trim();
       const expiresOn = document.getElementById('rcg-expires-chk').checked;
       const expiresVal = document.getElementById('rcg-expires').value;
       if (expiresOn && !expiresVal) throw new Error('Tanggal expired wajib diisi.');
-      const code = rcgGenerate(RCG_KEYS[appKey], serial, {
+      const code = rcgGenerate(keyHex, serial, {
         machineId: machId || null,
         expires: expiresOn ? expiresVal : null
       });
       const lines = [];
+      lines.push('APPLICATION : '+label);
       if (machId) lines.push('ID     : '+machId);
       lines.push('SERIAL : '+serial);
       lines.push('CODE   : '+group4(code));
@@ -4339,101 +4399,4 @@ function renderImportPreview(){
     : x.status==='dup'?'<span class="badge badge-expiring">Sudah ada</span>'
     : `<span class="badge badge-expired">Error</span><div style="font-size:11px;color:var(--danger);margin-top:3px">${esc(x.note)}</div>`;
   const LIMIT=500;
-  document.getElementById('imp-preview').innerHTML=p.slice(0,LIMIT).map(x=>`<tr>
-    <td>${x.n}</td><td><b>${esc(x.nama)||'–'}</b></td><td>${x.tglReg?fmtDate(x.tglReg):'–'}</td><td>${x.tglAktif?fmtDate(x.tglAktif):'–'}</td>
-    <td>${esc(x.paket)||'–'}</td><td>${esc(x.tipe)||'–'}</td><td>${x.lisensi??'–'}</td><td>${x.nilai!==null?esc(impFmtRp(x.nilai)):'–'}</td>
-    <td style="max-width:220px">${esc(x.catatan)||'–'}</td><td>${badge(x)}</td></tr>`).join('')
-    + (p.length>LIMIT?`<tr><td colspan="10" style="text-align:center;color:var(--text2)">… ${p.length-LIMIT} baris lainnya tidak ditampilkan (tetap ikut diimpor)</td></tr>`:'');
-  const btn=document.getElementById('imp-run');
-  btn.disabled = ok===0; btn.textContent = ok?`🚀 Import ${ok} Data`:'🚀 Import';
-}
-async function importRun(){
-  if(currentUserRole!=='admin') return showToast('Hanya admin yang boleh import data','danger');
-  const list=impState.prepared.filter(x=>x.status==='ok');
-  if(!list.length) return showToast('Tidak ada baris yang siap diimpor','danger');
-  if(!confirm(`Import ${list.length} data ke Firestore?\n\nData yang sudah diimpor tidak bisa dibatalkan otomatis (bisa dihapus manual per baris).`)) return;
-  const prog=document.getElementById('imp-progress'), msg=document.getElementById('imp-msg'), fill=document.getElementById('imp-fill');
-  prog.style.display='block'; fill.style.width='0%';
-  const batchId='imp-'+Date.now();
-  const who=currentUser?.displayName||currentUser?.email||'–';
-  try{
-    let done=0;
-    for(let i=0;i<list.length;i+=400){
-      const batch=writeBatch(db);
-      list.slice(i,i+400).forEach(x=>{
-        const komisi = x.komisiOn && (x.tipe==='Baru'||x.tipe==='Perpanjangan');
-        const rec={
-          nama:x.nama, invoice:x.invoice, paket:x.paket, tglReg:x.tglReg, tglAktif:x.tglAktif, tipe:x.tipe,
-          adaKomisi:komisi, statusKomisi:komisi?'belum':'tidak_berlaku', tipeAwalKomisi:komisi?x.tipe:'',
-          idKomp:x.idKomp, serial:x.serial, code:x.code, catatan:x.catatan,
-          userInput:who, userEmail:currentUser?.email||'–',
-          sumber:'import-tempel', importBatch:batchId,
-          createdAt:serverTimestamp(), updatedAt:serverTimestamp(), importedAt:serverTimestamp()
-        };
-        if(x.lisensi!==null) rec.lisensi=x.lisensi;
-        if(x.nilai!==null) rec.nilai=x.nilai;
-        batch.set(doc(collection(db,'registrasi')),rec);
-      });
-      await batch.commit();
-      done+=Math.min(400,list.length-i);
-      const pct=Math.round(done/list.length*100);
-      fill.style.width=pct+'%'; msg.textContent=`Mengimpor... ${done}/${list.length} (${pct}%)`;
-    }
-    msg.textContent='Import selesai! ✓';
-    showToast(`Import berhasil: ${list.length} data`,'success');
-    setTimeout(()=>{ importReset(); gotoPage('list',null); },900);
-  }catch(e){
-    prog.style.display='none';
-    showToast('Gagal import: '+e.message,'danger');
-  }
-}
-Object.assign(window,{importParse,importReset,importLoadFile,importSetMap,importRebuild,importRun});
-
-// ========== SYS INFO ==========
-function updateSysInfo(){
-  const el=document.getElementById('sys-info'); if(!el) return;
-  const roleLabel = currentUserRole==='admin'
-    ? '<span class="badge badge-active">Admin</span>'
-    : '<span class="badge badge-blue">User</span>';
-  // Tampilkan/sembunyikan tombol import Excel sesuai role
-  const importBtn=document.getElementById('btn-import-excel');
-  const importNote=document.getElementById('import-note-nonadmin');
-  if(importBtn) importBtn.style.display = currentUserRole==='admin' ? '' : 'none';
-  if(importNote) importNote.style.display = currentUserRole!=='admin' ? '' : 'none';
-  el.innerHTML=`
-    <div style="margin-bottom:6px"><b>Project ID:</b> ${esc(firebaseConfig.projectId)}</div>
-    <div style="margin-bottom:6px"><b>User Login:</b> ${currentUser?.displayName||'–'}</div>
-    <div style="margin-bottom:6px"><b>Email:</b> ${currentUser?.email||'–'}</div>
-    <div style="margin-bottom:6px"><b>Role:</b> ${roleLabel}</div>
-    <div style="margin-bottom:6px"><b>Total Data:</b> ${DB.length} records</div>
-    <div><b>Versi App:</b> 3.0 (Firebase + Tipe Registrasi + Rekap Komisi + History Update)</div>`;
-}
-
-// ========== PANDUAN PENGGUNAAN ==========
-function switchGuideTab(name, el){
-  document.querySelectorAll('.guide-section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.guide-tab').forEach(t=>t.classList.remove('active'));
-  const sec=document.getElementById('gsec-'+name);
-  if(sec) sec.classList.add('active');
-  if(el) el.classList.add('active');
-}
-function toggleGuideCard(headerEl){
-  const card=headerEl.closest('.guide-card');
-  card.classList.toggle('collapsed');
-}
-window.switchGuideTab=switchGuideTab;
-window.toggleGuideCard=toggleGuideCard;
-
-// Keyboard shortcuts
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){
-    closeModal();
-    closeHistory();
-    closeUpdateHistory();
-    document.getElementById('modal-del').classList.remove('open');
-    document.getElementById('modal-add-user').classList.remove('open');
-  }
-});
-</script>
-</body>
-</html>
+  document.getElementById('imp-preview').innerHTML=p.slice(0,LIMIT).ma

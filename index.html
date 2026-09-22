@@ -799,7 +799,10 @@ mark.sh{background:#fef08a;color:#713f12;border-radius:2px;padding:0 1px}
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">🔑 Informasi Registrasi</label>
+            <label class="form-label" style="display:flex;align-items:center;justify-content:space-between">
+              <span>🔑 Informasi Registrasi</span>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="openRcgModal()">🧮 Generate Kode</button>
+            </label>
             <textarea id="f-reginfo" placeholder="ID Komputer, No. Serial, Kode Registrasi, atau info lainnya..." style="min-height:80px"></textarea>
           </div>
           <div class="form-group">
@@ -846,6 +849,14 @@ mark.sh{background:#fef08a;color:#713f12;border-radius:2px;padding:0 1px}
               <option value="expiring">Akan Habis</option>
               <option value="expired">Kadaluarsa</option>
             </select>
+            <select id="filter-sort" onchange="filterList()" style="min-width:210px" title="Urutkan data">
+              <option value="">↕ Urut: Terbaru didaftarkan</option>
+              <option value="aktif-asc">⏳ Aktif hingga: paling awal habis</option>
+              <option value="segera">🔔 Segera habis dulu (yang masih aktif)</option>
+              <option value="aktif-desc">📅 Aktif hingga: paling lama</option>
+              <option value="reg-asc">🗓 Tgl registrasi: terlama</option>
+              <option value="nama">🔤 Nama A–Z</option>
+            </select>
             <input type="date" id="filter-dari" onchange="filterList()" title="Dari tanggal" style="width:130px">
             <input type="date" id="filter-sampai" onchange="filterList()" title="Sampai tanggal" style="width:130px">
             <button class="btn btn-secondary btn-sm" onclick="clearFilters()">✕ Reset</button>
@@ -860,7 +871,7 @@ mark.sh{background:#fef08a;color:#713f12;border-radius:2px;padding:0 1px}
                   <th class="col-paket">Paket Plugin</th>
                   <th class="col-tipe">Tipe</th>
                   <th class="col-tgl">Tgl Reg</th>
-                  <th class="col-tgl">Aktif Hingga</th>
+                  <th class="col-tgl" style="cursor:pointer;user-select:none" onclick="toggleSortAktif()" title="Klik untuk mengurutkan">Aktif Hingga <span id="sort-ind" style="opacity:.8"></span></th>
                   <th class="col-lis">Lisensi</th>
                   <th class="col-nilai">Nilai</th>
                   <th class="col-status">Status</th>
@@ -2009,8 +2020,172 @@ mark.sh{background:#fef08a;color:#713f12;border-radius:2px;padding:0 1px}
   </div>
 </div>
 
+<!-- MODAL RCG (Generate Kode Registrasi) -->
+<div class="modal-overlay" id="modal-rcg">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header"><h2>🧮 Zahir Release Code Generator</h2><button class="btn btn-secondary btn-icon" onclick="closeRcgModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Application Key <span class="req">*</span></label>
+        <select id="rcg-app">
+          <option value="">======== Choose Application</option>
+          <option value="Nestle">Nestle</option>
+          <option value="SidoMuncul">Sido Muncul</option>
+          <option value="ZCEKTRANSAKSI">Cek Transaksi</option>
+          <option value="ZIMPORTRANSAKSI">Impor Transaksi</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Machine ID</label>
+        <input type="text" id="rcg-machid" placeholder="Kosongkan bila tanpa modifier" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label class="form-label" style="display:flex;align-items:center;gap:6px">
+          <input type="checkbox" id="rcg-expires-chk" style="width:auto" onchange="document.getElementById('rcg-expires-wrap').style.display=this.checked?'block':'none'">
+          Release code expires
+        </label>
+        <div id="rcg-expires-wrap" style="display:none;margin-top:6px"><input type="date" id="rcg-expires"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Serial Number <span class="req">*</span></label>
+        <input type="text" id="rcg-serial" placeholder="1830070301" inputmode="numeric">
+      </div>
+      <div style="margin:4px 0 10px"><button type="button" class="btn btn-primary btn-sm" onclick="rcgDoGenerate()">🔑 Create Release Key</button></div>
+      <div class="form-group">
+        <label class="form-label">Preview</label>
+        <textarea id="rcg-preview" readonly style="min-height:80px;font-family:monospace;background:var(--surface2)"></textarea>
+      </div>
+      <div id="rcg-err" style="color:var(--danger);font-size:12px;display:none"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeRcgModal()">Close</button>
+      <button class="btn btn-primary" onclick="rcgApplyToForm()">📋 Isi ke Form</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOASTS -->
 <div class="toast-wrap" id="toast-wrap"></div>
+
+<!-- RCG: Zahir Release Code Generator (port dari RCG.exe / TurboPower OnGuard) -->
+<script>
+(function(){
+  const RCG_KEYS = {
+    Nestle:         '2B1611A38B14C22F1133DD1F5FC793E7',
+    SidoMuncul:     '4C90E4BE517000246ADA801385DFAF7D',
+    ZCEKTRANSAKSI:  '753267ACD1D4E5B4CD9D07FBC60B67C7',
+    ZIMPORTRANSAKSI:'008056BA31001C8D540D9420DEB29768'
+  };
+  const CKEYBOX = [
+    [[0,3,1],[2,1,3],[1,0,2],[3,2,0]],
+    [[3,2,0],[1,0,2],[2,1,3],[0,3,1]]
+  ];
+  const SERIAL_CHECK = 0x3C69;
+  const B15 = '0123456789ABCDE';
+  const u32 = x => x >>> 0;
+
+  function keyToDwords(hex){
+    const d = [];
+    for (let i=0;i<4;i++){
+      const b = hex.substr(i*8,8).match(/../g).map(h=>parseInt(h,16));
+      d.push(u32(b[0]|(b[1]<<8)|(b[2]<<16)|(b[3]<<24)));
+    }
+    return d;
+  }
+  function mixBlock(key,b0,b1,encrypt){
+    let right=u32(b0), left=u32(b1);
+    const box = CKEYBOX[encrypt?1:0];
+    for (let r=0;r<4;r++){
+      let AA=right, BB=key[box[r][0]], CC=key[box[r][1]], DD=key[box[r][2]];
+      AA=u32(AA+DD); DD=u32(DD+AA); AA=u32(AA^(AA>>>7));
+      BB=u32(BB+AA); AA=u32(AA+BB); BB=u32(BB^(BB<<13));
+      CC=u32(CC+BB); BB=u32(BB+CC); CC=u32(CC^(CC>>>17));
+      DD=u32(DD+CC); CC=u32(CC+DD); DD=u32(DD^(DD<<9));
+      AA=u32(AA+DD); DD=u32(DD+AA); AA=u32(AA^(AA>>>3));
+      BB=u32(BB+AA); BB=u32(BB^(BB<<7));
+      CC=u32(CC+BB); CC=u32(CC^(DD>>>15));
+      DD=u32(DD+CC); DD=u32(DD^(DD<<11));
+      const work=u32(left^DD); left=right; right=work;
+    }
+    return [left,right];
+  }
+  const hexLE = n => [0,8,16,24].map(s=>((n>>>s)&255).toString(16).padStart(2,'0')).join('').toUpperCase();
+  function toBase15(n,width){
+    width = width||8;
+    let s = n===0 ? '0' : '';
+    while (n>0){ s = B15[n%15] + s; n = Math.floor(n/15); }
+    return s.padStart(width,'0');
+  }
+  const rnd = n => Math.floor(Math.random()*n);
+  const group4 = s => s.match(/.{1,4}/g).join(' ');
+
+  function rcgGenerate(keyHex, serial, opt){
+    opt = opt || {};
+    const key = keyToDwords(keyHex);
+    if (opt.machineId){
+      const m = Number(opt.machineId);
+      if (!Number.isInteger(m)) throw new Error('Machine ID tidak valid');
+      key[0] = u32(key[0]^m);
+    }
+    const [l,r] = mixBlock(key, SERIAL_CHECK, u32(Number(serial)), true);
+    const partA = hexLE(l)+hexLE(r);
+    let y,m2,d,marker;
+    if (opt.expires){
+      const t = /^(\d{4})-(\d{2})-(\d{2})$/.exec(opt.expires);
+      if (!t) throw new Error("Format tanggal salah");
+      y=+t[1]; m2=+t[2]; d=+t[3];
+      marker = Number('34'+rnd(210)+'1'+rnd(9));
+    } else {
+      y=2100+rnd(200); m2=1+rnd(11); d=1+rnd(26);
+      marker = Number('56'+rnd(130)+'0'+rnd(9));
+    }
+    const ymd = Number(String(y)+String(m2).padStart(2,'0')+String(d).padStart(2,'0'));
+    return partA + toBase15(ymd) + toBase15(marker);
+  }
+
+  window.openRcgModal = function(){
+    document.getElementById('rcg-preview').value='';
+    document.getElementById('rcg-err').style.display='none';
+    document.getElementById('modal-rcg').classList.add('open');
+  };
+  window.closeRcgModal = function(){ document.getElementById('modal-rcg').classList.remove('open'); };
+  window.rcgDoGenerate = function(){
+    const errEl = document.getElementById('rcg-err');
+    errEl.style.display='none';
+    try{
+      const appKey = document.getElementById('rcg-app').value;
+      if (!appKey) throw new Error('Pilih Application terlebih dahulu.');
+      const serial = document.getElementById('rcg-serial').value.trim();
+      if (!serial) throw new Error('Serial Number wajib diisi.');
+      const machId = document.getElementById('rcg-machid').value.trim();
+      const expiresOn = document.getElementById('rcg-expires-chk').checked;
+      const expiresVal = document.getElementById('rcg-expires').value;
+      if (expiresOn && !expiresVal) throw new Error('Tanggal expired wajib diisi.');
+      const code = rcgGenerate(RCG_KEYS[appKey], serial, {
+        machineId: machId || null,
+        expires: expiresOn ? expiresVal : null
+      });
+      const lines = [];
+      if (machId) lines.push('ID     : '+machId);
+      lines.push('SERIAL : '+serial);
+      lines.push('CODE   : '+group4(code));
+      document.getElementById('rcg-preview').value = lines.join('\n');
+    }catch(e){
+      errEl.textContent = e.message;
+      errEl.style.display='block';
+    }
+  };
+  window.rcgApplyToForm = function(){
+    const preview = document.getElementById('rcg-preview').value;
+    if (!preview){ rcgDoGenerate(); }
+    const finalText = document.getElementById('rcg-preview').value;
+    if (!finalText) return;
+    const el = document.getElementById('f-reginfo');
+    el.value = el.value ? (el.value.replace(/\s+$/,'') + '\n' + finalText) : finalText;
+    closeRcgModal();
+  };
+})();
+</script>
 
 <!-- FIREBASE SDK -->
 <script type="module">
@@ -2465,7 +2640,7 @@ function getFilteredData(){
   const sts=(document.getElementById('filter-status')||{value:''}).value;
   const dari=(document.getElementById('filter-dari')||{value:''}).value;
   const sampai=(document.getElementById('filter-sampai')||{value:''}).value;
-  return DB.filter(r=>{
+  const out=DB.filter(r=>{
     if(q){
       // Universal search: cari di SEMUA field yang ada di data
       const haystack=[
@@ -2482,7 +2657,40 @@ function getFilteredData(){
     if(sampai && r.tglReg && r.tglReg>sampai) return false;
     return true;
   });
+  return sortData(out);
 }
+
+// Pengurutan daftar (juga dipakai ekspor CSV). Data tanpa tanggal selalu di paling bawah.
+function sortData(list){
+  const mode=(document.getElementById('filter-sort')||{value:''}).value;
+  if(!mode) return list;
+  const today=todayISO();
+  const cmp=(a,b)=>(a||'').localeCompare(b||'');
+  const dateLast=fn=>(a,b)=>{
+    if(!a.tglAktif && !b.tglAktif) return 0;
+    if(!a.tglAktif) return 1;
+    if(!b.tglAktif) return -1;
+    return fn(a,b);
+  };
+  const arr=list.slice();
+  if(mode==='aktif-asc')       arr.sort(dateLast((a,b)=>cmp(a.tglAktif,b.tglAktif)));
+  else if(mode==='aktif-desc') arr.sort(dateLast((a,b)=>cmp(b.tglAktif,a.tglAktif)));
+  else if(mode==='segera')     arr.sort(dateLast((a,b)=>{
+    // yang masih aktif: paling dekat habis di atas; yang sudah kadaluarsa: baru saja habis di atas
+    const aa=a.tglAktif>=today, bb=b.tglAktif>=today;
+    if(aa!==bb) return aa?-1:1;
+    return aa?cmp(a.tglAktif,b.tglAktif):cmp(b.tglAktif,a.tglAktif);
+  }));
+  else if(mode==='reg-asc')    arr.sort((a,b)=>cmp(a.tglReg,b.tglReg));
+  else if(mode==='nama')       arr.sort((a,b)=>(a.nama||'').localeCompare(b.nama||'','id',{sensitivity:'base'}));
+  return arr;
+}
+function toggleSortAktif(){
+  const el=document.getElementById('filter-sort');
+  el.value = el.value==='aktif-asc' ? 'aktif-desc' : 'aktif-asc';
+  filterList();
+}
+window.toggleSortAktif=toggleSortAktif;
 
 function highlightText(text, q){
   if(!q||!text) return esc(text);
@@ -2492,7 +2700,7 @@ function highlightText(text, q){
 }
 function filterList(){ currentPage=1; renderList(); }
 function clearFilters(){
-  ['search-input','filter-paket','filter-status','filter-tipe','filter-dari','filter-sampai'].forEach(id=>{
+  ['search-input','filter-paket','filter-status','filter-tipe','filter-sort','filter-dari','filter-sampai'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value='';
   });
   filterList();
@@ -2609,6 +2817,8 @@ function renderList(){
     </tr>`;
     }).join('');
   }
+  const ind=document.getElementById('sort-ind');
+  if(ind){ const m=(document.getElementById('filter-sort')||{}).value; ind.textContent = (m==='aktif-asc'||m==='segera')?'▲':m==='aktif-desc'?'▼':'⇅'; }
   document.getElementById('row-info').textContent=`Menampilkan ${slice.length} dari ${total} data`;
   renderPagination(pages);
 }
